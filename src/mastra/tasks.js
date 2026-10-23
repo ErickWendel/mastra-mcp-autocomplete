@@ -12,7 +12,10 @@ export const tasks = {
 3. Agendas are often split into tabs or buttons (days, rooms, tracks: "Day 1", "Sala A", "Hall", room codes) and only
    the selected one is on the page. When the name isn't found, snapshot the agenda section (small depth) to see them,
    then click each one and search for the name again.
-Read the talk's title, description, date and language. A speaker card (the name, a role, a bio) is not the talk:
+Read the talk's title, description and date (the day of the talk or event, never today's date).
+As soon as you have the title (and the description, when there is one), fill summary, tags and language in the same
+update_form call: they come from what you just read (the language of the title and description), not from another page.
+A speaker card (the name, a role, a bio) is not the talk:
 when a page only lists speakers, keep going to the agenda until you find the talk's own title.`,
     },
     event: {

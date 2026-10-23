@@ -29,6 +29,8 @@ async function runTask({ name, task, url, onEvent, signal }) {
             maxSteps: config.maxSteps,
             abortSignal: taskSignal,
             prepareStep,
+            // one browser, one page: a step's tool calls run in order ("click a tab, then search it"), never at once
+            toolCallConcurrency: 1,
             modelSettings: { temperature: 0 },
             providerOptions: withoutReasoning,
             onStepFinish: ({ toolCalls = [] }) => {

@@ -7,7 +7,7 @@ const text = description => z.string().nullish().describe(description)
 
 export const schema = z.object({
     title: text("title of the talk/session given by the speaker; not the event's name, not the speaker's name or bio"),
-    summary: text('2-3 sentences in your own words about the talk, in the language of the talk'),
+    summary: text("2-3 sentences in your own words about the talk, in the talk's language: from its description, or from its title alone when the page has none"),
     date: text('date of the talk, YYYY-MM-DD'),
     language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language the talk is given in'),
     tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags about the talk'),
