@@ -107,8 +107,8 @@ public/js/
 
 ## Configuration
 
-`.env` holds only `OPEN_ROUTER_KEY` and `PORT` (default `3333`); `SPEAKER_NAME` (default `Erick Wendel`) is optional.
-The model, the step budget, the idle-step limit and the per-task time limit are in `src/config.ts`.
+`.env` holds only the secret, `OPEN_ROUTER_KEY`, and `PORT` (default `3333`). Everything else is in `src/config.ts`:
+the model, the speaker the agents look for, the step budget, the idle-step limit and the per-task time limit.
 
 The default model, `anthropic/claude-haiku-5.5`, costs about $0.001 per run and fills a talk in 10-20 seconds. Free models
 work but aren't reliable: the best one we tried, `nvidia/nemotron-3.5-lightning:free`, is as fast but often gets dates

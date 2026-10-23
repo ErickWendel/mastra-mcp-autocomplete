@@ -5,7 +5,7 @@ export const config = {
     // a cheap, fast OpenRouter model that is good at calling tools (~$0.10 / $0.50 per million tokens in / out)
     model: 'anthropic/claude-haiku-5.5',
     // who the agent looks for on event pages (a talk page often lists many speakers)
-    speaker: process.env.SPEAKER_NAME ?? 'Erick Wendel',
+    speaker: 'Erick Wendel',
     // each step is one model call: a budget keeps a stubborn model from browsing forever
     // (an event's home page -> agenda -> session -> address takes a few pages)
     maxSteps: 25,
