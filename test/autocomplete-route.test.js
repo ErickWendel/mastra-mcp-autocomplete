@@ -15,7 +15,7 @@ function memoryStore() {
 
 const fakeAutocomplete = async ({ onEvent }) => {
     onEvent({ type: 'model', modelId: 'fake/model' })
-    onEvent({ type: 'tool', tool: 'read_page', args: { url: 'https://youtu.be/x' } })
+    onEvent({ type: 'tool', tool: 'navigate', args: { url: 'https://youtu.be/x' } })
     onEvent({ type: 'fields', fields: { title: 'A video' } })
     return { modelId: 'fake/model', fields: { title: 'A video' } }
 }

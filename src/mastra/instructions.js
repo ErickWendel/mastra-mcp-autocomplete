@@ -1,6 +1,7 @@
 import { config } from '../config.js'
 
-// 6. The instructions: what to look for on each kind of page, plus the strategy's browsing rules.
+// 5. The instructions: browse like a person (search, then zoom in), what to look for on each kind of page,
+//    and the rules that keep answers honest.
 const tasks = {
     talk: `Find the talk by ${config.speaker} and the event's details. You may get any page of the event's site, even
 its home page, so navigate like a person would:
@@ -13,10 +14,15 @@ Read the talk's date and the event's city and country along the way.`,
     video: 'Read the video page: title, description, channel, publication date and view count.',
 }
 
-export const instructionsFor = (type, rules) => `You fill a form about a developer contribution.
+export const instructionsFor = type => `You fill a form about a developer contribution using a web browser.
 ${tasks[type]}
-How to work:
-${rules}
+How to browse:
+- browser_navigate opens a page and returns only its title.
+- Scan with browser_find: search for what you need (a name, "views", a date, "agenda", "local"), also in the page's
+  language. It returns small snippets with element refs, like a person skimming the page.
+- To read one section, use browser_snapshot with target=<ref from browser_find> and a small depth. Never snapshot the whole page.
+- Click only to reach the page that has what you need (a session, speaker or venue page).
+How to answer:
 - Call update_form as soon as you find any field, then look only for the missing ones. Don't wait until the end.
 - Don't double-check a field you already filled, and give up on a field after two tries.
 - Only report what you saw on the pages; leave a field out when it isn't there. Never guess.

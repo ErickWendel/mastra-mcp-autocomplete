@@ -1,8 +1,8 @@
 import { createTool } from '@mastra/core/tools'
-import { schemas } from '../schemas.js'
+import { schemas } from './schemas.js'
 
-// 3. Tools (b): a tool with a side effect: the agent calls it every time it finds something, and `onFields` sends
-//     those fields to the page right away. The input schema is the form itself, so the values arrive typed.
+// 3. A local tool with a side effect: the agent calls it every time it finds something, and `onFields` sends
+//    those fields to the page right away. The input schema is the form itself, so the values arrive typed.
 export function createUpdateForm(type, onFields) {
     return createTool({
         id: 'update_form',
@@ -10,7 +10,7 @@ export function createUpdateForm(type, onFields) {
         inputSchema: schemas[type].partial(),
         execute: async fields => {
             const found = Object.fromEntries(Object.entries(fields).filter(([, value]) => value != null && value !== ''))
-            onFields(found)
+            if (Object.keys(found).length) onFields(found)
             return { saved: Object.keys(found) }
         },
     })

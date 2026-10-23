@@ -21,7 +21,7 @@ function onStep(step) {
         form.render(forms[step.contributionType])
     }
     if (step.type === 'fields') form.fill(step.fields)
-    if (step.type === 'done') {
+    if (step.type === 'done' && current) {
         Object.assign(current, { modelId: step.modelId, tookMs: step.tookMs })
         progress.finish(`filled by ${step.modelId}: review and save`)
     }

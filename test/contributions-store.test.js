@@ -19,6 +19,12 @@ test('saves, lists newest first and removes', async () => {
     assert.deepEqual((await store.list()).map(item => item.title), ['two'])
 })
 
+test('saves made at the same time are all kept', async () => {
+    const store = tempStore()
+    await Promise.all(['1', '2', '3', '4'].map(n => store.save({ url: `https://a.com/${n}` })))
+    assert.equal((await store.list()).length, 4)
+})
+
 test('never saves the same URL twice (query, hash and trailing slash ignored)', async () => {
     const store = tempStore()
     const { item } = await store.save({ url: 'https://a.com/post' })
