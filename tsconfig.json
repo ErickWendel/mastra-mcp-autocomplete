@@ -1,0 +1,19 @@
+{
+  // Node runs the .ts files directly by stripping the types, so tsc only checks them (noEmit) and the code must use
+  // syntax that can be erased: no enums, no namespaces, `import type` for types, and .ts extensions in imports.
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "public/js", "test", "scripts"]
+}

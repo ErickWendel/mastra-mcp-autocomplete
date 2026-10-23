@@ -5,13 +5,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node --env-file=.env src/server.js",
-    "dev": "node --env-file=.env --watch src/server.js",
-    "test": "node --test \"test/**/*.test.js\"",
-    "try": "node --env-file=.env scripts/try.js"
+    "start": "node --env-file=.env --disable-warning=ExperimentalWarning src/server.ts",
+    "dev": "node --env-file=.env --disable-warning=ExperimentalWarning --watch src/server.ts",
+    "test": "node --disable-warning=ExperimentalWarning --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc",
+    "try": "node --env-file=.env scripts/try.ts"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24"
   },
   "license": "MIT",
   "dependencies": {
@@ -26,5 +27,9 @@
     "@modelcontextprotocol/core": "2.3.1",
     "@modelcontextprotocol/client": "2.3.1",
     "@modelcontextprotocol/server": "2.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "typescript": "^7.0.2"
   }
 }
