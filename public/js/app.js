@@ -1,27 +1,21 @@
-import { autocomplete, getForms } from './api.js'
+import { autocomplete, getForm } from './api.js'
 import { createStore } from './storage.js'
 import { createProgress } from './progress.js'
 import { createSchemaForm } from './schema-form.js'
-import { createTypePicker } from './type-picker.js'
 import { renderGrid } from './grid.js'
 
 // Wires the pieces together: URL ➜ agent stream ➜ form (filled live) ➜ save (localStorage) ➜ grid.
 const $ = id => document.getElementById(id)
-const forms = await getForms()
+const schema = await getForm()
 const store = createStore()
 const progress = createProgress($('progress'))
 const form = createSchemaForm($('fields'))
-const picker = createTypePicker($('types'), Object.keys(forms), type => { form.render(forms[type]); run(type) })
-let current = null // { url, type, modelId, tookMs, controller }
+let current = null // { url, modelId, tookMs, controller }
 
 const refresh = freshId => renderGrid($('grid'), $('count'), store.list(), freshId)
 
 function onStep(step) {
     progress.add(step)
-    if (step.type === 'detected' && step.contributionType !== picker.get()) {
-        picker.set(step.contributionType)
-        form.render(forms[step.contributionType])
-    }
     if (step.type === 'fields') form.fill(step.fields)
     if (step.type === 'done' && current) {
         Object.assign(current, { modelId: step.modelId, tookMs: step.tookMs })
@@ -30,11 +24,12 @@ function onStep(step) {
     if (step.type === 'error') progress.finish(step.message, true)
 }
 
-// starting a new run (another URL or type) cancels the previous one
-async function run(type) {
+// starting a new run cancels the previous one
+async function run() {
     const url = $('url').value.trim()
     if (!/^https?:\/\//.test(url)) return
     current?.controller.abort()
+    form.render(schema)
     // already saved: no need to ask the agent again
     const existing = store.findByUrl(url)
     if (existing) {
@@ -44,11 +39,11 @@ async function run(type) {
         return refresh(existing.id)
     }
     const controller = new AbortController()
-    current = { url, type, controller }
+    current = { url, controller }
     $('save').disabled = false
     progress.start(url)
     try {
-        await autocomplete({ url, type, signal: controller.signal }, onStep)
+        await autocomplete({ url, signal: controller.signal }, onStep)
     } catch (error) {
         if (!controller.signal.aborted) progress.finish(error.message, true)
     }
@@ -63,7 +58,7 @@ function reset() {
     $('url').value = ''
     $('save').disabled = true
     $('progress').hidden = true
-    form.render(forms[picker.get()])
+    form.render(schema)
 }
 $('clear').addEventListener('click', reset)
 
@@ -71,7 +66,7 @@ $('contribution').addEventListener('submit', event => {
     event.preventDefault()
     if (!current) return
     const { url, modelId, tookMs } = current
-    const { item } = store.save({ url, type: picker.get(), modelId, tookMs, ...form.values() })
+    const { item } = store.save({ url, modelId, tookMs, ...form.values() })
     reset()
     refresh(item.id)
 })
@@ -83,5 +78,5 @@ $('grid').addEventListener('click', event => {
     refresh()
 })
 
-form.render(forms[picker.get()])
+form.render(schema)
 refresh()

@@ -1,7 +1,7 @@
 {
   "name": "mastra-mcp-autocomplete",
   "version": "1.0.0",
-  "description": "Paste a post, YouTube or event URL: a Mastra agent browses it through the Playwright MCP server and fills the form",
+  "description": "Paste an event link: a Mastra agent browses it like a person through the Playwright MCP server and fills the talk form live",
   "private": true,
   "type": "module",
   "scripts": {

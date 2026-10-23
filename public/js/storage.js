@@ -1,6 +1,6 @@
-// Saved contributions live in this browser (localStorage); nothing is written on the server.
+// Saved talks live in this browser (localStorage); nothing is written on the server.
 // The same URL (ignoring query, hash and trailing slash) is never saved twice.
-const KEY = 'mastra-mcp-autocomplete:contributions'
+const KEY = 'mastra-mcp-autocomplete:talks'
 const clean = url => url.split(/[?#]/)[0].replace(/\/+$/, '')
 
 export function createStore(storage = globalThis.localStorage) {

@@ -1,4 +1,4 @@
-// Draws a form from a JSON Schema (the server's zod schemas) and fills it with each new version of the form's JSON.
+// Draws a form from a JSON Schema (the server's zod schema) and fills it field by field as the agent finds them.
 // A field you edited yourself is never overwritten by the agent.
 const label = name => name.replace(/([A-Z])/g, ' $1')
 const variants = property => property.anyOf ?? [property]
@@ -34,7 +34,7 @@ export function createSchemaForm(element) {
                 .map(([name, property]) => `<label class="${['title', 'summary'].includes(name) ? 'wide' : ''}">${label(name)}${input(name, property)}</label>`)
                 .join('')
         },
-        // receives the whole form every time (empty fields are null): only fields whose value changed are touched
+        // only fields whose value changed are touched (and flash)
         fill(fields) {
             for (const [name, value] of Object.entries(fields)) {
                 const target = field(name)

@@ -10,14 +10,13 @@
     <main>
         <header>
             <h1><span class="accent">&gt;_</span> autocomplete</h1>
-            <p class="muted">Paste a post, YouTube or event URL. A Mastra agent reads it (fetch first, a real browser through Playwright MCP when needed) and fills the form as it finds each field.</p>
+            <p class="muted">Paste an event's link (the agenda, a talk page or even the home page). A Mastra agent browses it like a person through Playwright MCP, finds the talk, and fills the form as it finds each field.</p>
         </header>
 
         <form id="url-form" class="url-form" autocomplete="off">
-            <input id="url" type="url" placeholder="paste a URL: https://..." required />
+            <input id="url" type="url" placeholder="paste an event link: https://..." required />
             <button id="autocomplete" type="submit">Autocomplete</button>
         </form>
-        <div id="types" class="types"></div>
 
         <section id="progress" class="progress" hidden></section>
 

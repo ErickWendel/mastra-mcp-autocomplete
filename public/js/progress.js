@@ -1,10 +1,9 @@
 // Shows what the agent is doing, with a live timer per step.
 const seconds = ms => `${(ms / 1000).toFixed(1)}s`
 const describe = event => ({
-    detected: `detected a ${event.contributionType}`,
     model: `thinking with ${event.modelId}`,
     tool: `${event.tool} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
-    fields: `form now has ${Object.entries(event.fields ?? {}).filter(([, value]) => value != null).map(([name]) => name).join(', ')}`,
+    fields: `filled ${Object.keys(event.fields ?? {}).join(', ')}`,
     warning: event.message,
 })[event.type]
 

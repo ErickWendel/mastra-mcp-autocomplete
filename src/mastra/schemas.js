@@ -1,29 +1,21 @@
 import { z } from 'zod'
 
-// 2. The form: one zod schema per type. Every field is optional, so the agent leaves unknown ones out
-//     instead of inventing them. `.describe()` is what the model reads to know what each field means.
-//     The same schemas are the agent's structured output and the page's form (as JSON Schema).
+// 2. The form: a zod schema. Every field is optional, so the agent leaves unknown ones out instead of inventing them.
+//    `.describe()` is what the model reads to know what each field means.
+//    The same schema is the update_form tool's input and the page's form (as JSON Schema).
 const text = description => z.string().nullish().describe(description)
-const common = {
-    title: text('title of the contribution'),
-    summary: text('2-3 sentences in your own words, in the language of the content'),
-    date: text('YYYY-MM-DD'),
-    language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language of the content'),
-    tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags'),
-}
 
-export const schemas = {
-    talk: z.object({
-        ...common,
-        title: text('title of the talk/session given by the speaker, not the event name'),
-        eventName: text('official name of the event (as in its title or logo), not its slogan or tagline'),
-        city: text('city of the event'),
-        country: text('country, in English'),
-        attendees: z.number().nullish().describe('attendees/registrations if shown'),
-    }),
-    post: z.object({ ...common, site: text('site or portal name, e.g. LinkedIn, Medium, dev.to') }),
-    video: z.object({ ...common, channel: text('channel name'), views: z.number().nullish().describe('view count') }),
-}
+export const schema = z.object({
+    title: text('title of the talk/session given by the speaker, not the event name'),
+    summary: text('2-3 sentences in your own words about the talk, in the language of the talk'),
+    date: text('date of the talk, YYYY-MM-DD'),
+    language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language the talk is given in'),
+    tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags about the talk'),
+    eventName: text('official name of the event (as in its title or logo), not its slogan or tagline'),
+    venue: text('venue name and street address'),
+    city: text('city of the event'),
+    country: text('country, in English'),
+    attendees: z.number().nullish().describe('attendees/registrations if shown'),
+})
 
-export const TYPES = Object.keys(schemas)
-export const formsAsJsonSchema = () => Object.fromEntries(TYPES.map(type => [type, z.toJSONSchema(schemas[type])]))
+export const formAsJsonSchema = () => z.toJSONSchema(schema)
