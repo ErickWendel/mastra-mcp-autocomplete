@@ -1,5 +1,5 @@
 import { autocomplete } from '../src/mastra/autocomplete.ts'
-import { browsers } from '../src/mastra/browsers.ts'
+import { browsers } from '../src/mastra/browser/browsers.ts'
 import type { AgentEvent } from '../src/types/agent-event.ts'
 
 // Runs the agents from the terminal, no server or page: npm run try -- <url> [<url>...]

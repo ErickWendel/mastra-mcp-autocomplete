@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createUpdateForm } from '../src/mastra/update-form.ts'
+import { createUpdateForm } from '../src/mastra/form/update-form.ts'
 import type { z } from 'zod'
 import type { Talk } from '../src/types/talk.ts'
 

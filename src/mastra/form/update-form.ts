@@ -1,8 +1,8 @@
 import { createTool } from '@mastra/core/tools'
 import { schema } from './schema.ts'
 import { isEmpty } from './is-empty.ts'
-import type { Talk } from '../types/talk.ts'
-import type { TalkField } from '../types/talk-field.ts'
+import type { Talk } from '../../types/talk.ts'
+import type { TalkField } from '../../types/talk-field.ts'
 
 // 5. A local tool with a side effect: the agent calls it every time it finds something, and `onFields` sends those
 //    fields to the page right away. Its input schema is the part of the form this agent fills, so the values arrive

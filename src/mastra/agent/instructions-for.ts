@@ -1,4 +1,4 @@
-import type { Task } from '../types/task.ts'
+import type { Task } from '../../types/task.ts'
 
 // 7. The instructions: the task's goal, how to browse like a person (search, then zoom in),
 //    and the rules that keep answers honest.

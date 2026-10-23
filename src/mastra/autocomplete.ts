@@ -1,5 +1,5 @@
 import { config } from '../config.ts'
-import { runTask } from './run-task.ts'
+import { runTask } from './agent/run-task.ts'
 import { tasks } from './tasks/tasks.ts'
 import type { AutocompleteFunction } from '../types/autocomplete-function.ts'
 

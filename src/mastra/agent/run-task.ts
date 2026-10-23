@@ -1,13 +1,13 @@
-import { config } from '../config.ts'
-import { browsers } from './browsers.ts'
+import { config } from '../../config.ts'
+import { browsers } from '../browser/browsers.ts'
 import { createAgent } from './create-agent.ts'
-import { createUpdateForm } from './update-form.ts'
+import { createUpdateForm } from '../form/update-form.ts'
 import { stepPlan } from './step-plan.ts'
 import { toolCallInfo } from './tool-call-info.ts'
-import { withoutReasoning } from './without-reasoning.ts'
-import type { AgentEvent } from '../types/agent-event.ts'
-import type { Task } from '../types/task.ts'
-import type { Talk } from '../types/talk.ts'
+import { withoutReasoning } from '../model/without-reasoning.ts'
+import type { AgentEvent } from '../../types/agent-event.ts'
+import type { Task } from '../../types/task.ts'
+import type { Talk } from '../../types/talk.ts'
 
 const prepareStep = stepPlan({ firstSteps: ['browser_navigate'], maxSteps: config.maxSteps })
 

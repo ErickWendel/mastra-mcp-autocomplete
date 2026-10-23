@@ -1,7 +1,7 @@
 import { config } from './config.ts'
 import { buildApp } from './app.ts'
 import { autocomplete } from './mastra/autocomplete.ts'
-import { browsers } from './mastra/browsers.ts'
+import { browsers } from './mastra/browser/browsers.ts'
 
 if (!config.openRouterKey) throw new Error('OPEN_ROUTER_KEY is missing: copy .env.example to .env')
 

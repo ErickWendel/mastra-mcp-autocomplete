@@ -41,21 +41,31 @@ Every file has one export and one job. Modern bits used along the way: `await us
 
 ## How it works: read the Mastra files in order
 
-Each file in `src/mastra/` does one thing (the number is in each file's first comment):
+`src/mastra/` is organized by context, one folder each; the number in each file's first comment is the reading order:
 
-| # | File | What it shows |
-|---|------|---------------|
-| 1 | `model.ts` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Claude Haiku 5.5 by default (about $0.001 per run). |
-| 2 | `without-reasoning.ts` | Provider options that turn the model's reasoning off: ~1s per step instead of ~10s. |
-| 3 | `schema.ts` | The talk form as a zod schema: the `update_form` input, the page's form (as JSON Schema) and the `Talk` type. |
-| 4 | `tasks/talk-task.ts`, `tasks/event-task.ts`, `tasks/tasks.ts` | The independent tasks: each one's goal and its part of the form. |
-| 5 | `update-form.ts` (+ `is-empty.ts`) | A local tool (`createTool`) for one task's fields: it streams them to the page and answers with what's still missing. |
-| 6 | `browsers.ts` | `MCPClient` starts one Playwright MCP server per task over stdio (one browser can't serve two agents); only 5 tools are exposed (no `run_code_unsafe`). |
-| 7 | `instructions-for.ts` | The task's goal + how to browse (search, then zoom in) + never guess. |
-| 8 | `create-agent.ts` | `new Agent({ instructions, model, tools })`, one per task. |
-| 9 | `step-plan.ts` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
-| 10 | `run-task.ts` (+ `tool-call-info.ts`) | One task's `agent.generate()`: `maxSteps`, `prepareStep`, `toolCallConcurrency: 1` (a step's browser actions run in order, so "click a tab, then search it" works), `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
-| 11 | `autocomplete.ts` | The tasks run in parallel (`Promise.allSettled`); one failing doesn't stop the other. |
+| # | Context | File | What it shows |
+|---|---------|------|---------------|
+| 1 | `model/` | `model.ts` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Claude Haiku 5.5 by default (about $0.001 per run). |
+| 2 | `model/` | `without-reasoning.ts` | Provider options that turn the model's reasoning off: ~1s per step instead of ~10s. |
+| 3 | `form/` | `schema.ts` | The talk form as a zod schema: the `update_form` input, the page's form (as JSON Schema) and the `Talk` type. |
+| 4 | `tasks/` | `talk-task.ts`, `event-task.ts`, `tasks.ts` | The independent tasks: each one's goal and its part of the form. |
+| 5 | `form/` | `update-form.ts` (+ `is-empty.ts`) | A local tool (`createTool`) for one task's fields: it streams them to the page and answers with what's still missing. |
+| 6 | `browser/` | `browsers.ts` | `MCPClient` starts one Playwright MCP server per task over stdio (one browser can't serve two agents); only 5 tools are exposed (no `run_code_unsafe`). |
+| 7 | `agent/` | `instructions-for.ts` | The task's goal + how to browse (search, then zoom in) + never guess. |
+| 8 | `agent/` | `create-agent.ts` | `new Agent({ instructions, model, tools })`, one per task. |
+| 9 | `agent/` | `step-plan.ts` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
+| 10 | `agent/` | `run-task.ts` (+ `tool-call-info.ts`) | One task's `agent.generate()`: `maxSteps`, `prepareStep`, `toolCallConcurrency: 1` (a step's browser actions run in order, so "click a tab, then search it" works), `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
+| 11 | (root) | `autocomplete.ts` | The tasks run in parallel (`Promise.allSettled`); one failing doesn't stop the other. |
+
+```
+src/mastra/
+├── model/      model.ts · without-reasoning.ts
+├── form/       schema.ts · update-form.ts · is-empty.ts
+├── tasks/      talk-task.ts · event-task.ts · tasks.ts
+├── browser/    browsers.ts
+├── agent/      instructions-for.ts · create-agent.ts · step-plan.ts · tool-call-info.ts · run-task.ts
+└── autocomplete.ts
+```
 
 Things worth showing:
 

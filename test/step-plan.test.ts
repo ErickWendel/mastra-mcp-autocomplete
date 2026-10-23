@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { stepPlan } from '../src/mastra/step-plan.ts'
+import { stepPlan } from '../src/mastra/agent/step-plan.ts'
 
 test('forces the first steps, then update_form every few steps and on the last one', () => {
     const plan = stepPlan({ firstSteps: ['browser_navigate'], maxSteps: 10, fillEvery: 4 })
