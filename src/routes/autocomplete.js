@@ -3,13 +3,24 @@ import { openStream } from '../lib/sse.js'
 // POST /api/autocomplete { url } -> a stream of steps; fields arrive as the agent finds them.
 // Nothing is saved on the server: the page reviews the form and keeps it in localStorage.
 export function autocompleteRoute(app, { autocomplete }) {
+    // the agents' browsers are shared, so only one run at a time: a new run (another tab, or Stop then Autocomplete)
+    // cancels the one in progress and waits for it to let go of the browsers
+    let current = null // { controller, finished }
+
     app.post('/api/autocomplete', async (request, reply) => {
         const { url } = request.body ?? {}
         if (!/^https?:\/\//.test(url ?? '')) return reply.code(400).send({ error: "paste an event page's http(s) URL" })
 
-        const stream = openStream(reply)
-        // closing the page (or pasting another URL) stops the agent
+        if (current) {
+            current.controller.abort()
+            await current.finished
+        }
         const controller = new AbortController()
+        let finish
+        current = { controller, finished: new Promise(resolve => { finish = resolve }) }
+
+        const stream = openStream(reply)
+        // closing the page (or the Stop button) stops the agents
         reply.raw.on('close', () => controller.abort())
         const started = Date.now()
         try {
@@ -19,6 +30,8 @@ export function autocompleteRoute(app, { autocomplete }) {
             if (!controller.signal.aborted) stream.send({ type: 'error', message: error.message })
         } finally {
             stream.close()
+            if (current?.controller === controller) current = null
+            finish()
         }
     })
 }

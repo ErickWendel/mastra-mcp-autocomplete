@@ -4,6 +4,7 @@ import { schema } from './schemas.js'
 // 4. A local tool with a side effect: the agent calls it every time it finds something, and `onFields` sends
 //    those fields to the page right away. Its input schema is the part of the form this agent fills, so the
 //    values arrive typed and two agents never write the same field. Its answer tells the agent what's missing.
+
 // models sometimes send placeholders instead of leaving a field out
 const isEmpty = value => value == null || (Array.isArray(value) ? !value.length : /^(|none|null|n\/a|unknown)$/i.test(String(value).trim()))
 

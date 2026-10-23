@@ -38,7 +38,7 @@ Each file in `src/mastra/` does one thing (the number is in each file's first co
 | 6 | `instructions.js` | The task's goal + how to browse (search, then zoom in) + never guess. |
 | 7 | `agent.js` | `new Agent({ instructions, model, tools })`, one per task. |
 | 8 | `step-plan.js` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
-| 9 | `autocomplete.js` | The tasks run in parallel (`Promise.allSettled`); each `agent.generate()` gets `maxSteps`, `prepareStep`, `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
+| 9 | `autocomplete.js` | The tasks run in parallel (`Promise.allSettled`); each `agent.generate()` gets `maxSteps`, `prepareStep`, `toolCallConcurrency: 1` (a step's browser actions run in order, so "click a tab, then search it" works), `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
 
 Things worth showing:
 
@@ -67,7 +67,8 @@ Things worth showing:
 The model, the step budget, the idle-step limit and the per-task time limit are in `src/config.js`.
 
 The default model, `anthropic/claude-haiku-5.5`, costs about $0.001 per run and fills a talk in 10-20 seconds. Free models
-work too (e.g. `nvidia/nemotron-3.5-super-vl:free`), but they are slower, less accurate, and stall when OpenRouter's free
-tier is busy.
+work but aren't reliable: the best one we tried, `nvidia/nemotron-3.5-lightning:free`, is as fast but often gets dates
+wrong, and free models stall or get rate-limited when OpenRouter's free tier is busy.
 
-It's a local, single-user app: the two browsers are shared between runs, so it handles one autocomplete at a time.
+It's a local, single-user app: the two browsers are shared between runs, so one autocomplete runs at a time (a new
+one cancels the run in progress).

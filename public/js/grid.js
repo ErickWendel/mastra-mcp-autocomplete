@@ -6,7 +6,7 @@ function card(item, fresh) {
         item.attendees && `${item.attendees} attendees`].filter(Boolean)
     return `
         <article class="card ${fresh ? 'fresh' : ''}">
-            <header><span class="badge">${escape(item.eventName || 'talk')}</span><button class="ghost" data-remove="${item.id}">remove</button></header>
+            <header><span class="badge">${escape(item.eventName || 'talk')}</span><button class="ghost" data-remove="${escape(item.id)}">remove</button></header>
             <h3><a href="${escape(item.url)}" target="_blank" rel="noreferrer">${escape(item.title || item.url)}</a></h3>
             ${item.summary ? `<p>${escape(item.summary)}</p>` : ''}
             <div class="meta">${meta.map(m => `<span>${escape(m)}</span>`).join('')}</div>

@@ -26,6 +26,21 @@ test('an agent failure ends the stream with an error', async () => {
     assert.deepEqual(last, { type: 'error', message: 'boom' })
 })
 
+test('a new run cancels the one in progress', async () => {
+    const app = await buildApp({
+        // the first run waits until it is cancelled; the second one finishes right away
+        autocomplete: ({ url, signal, onEvent }) => url.endsWith('/slow')
+            ? new Promise((_, reject) => signal.addEventListener('abort', () => reject(new Error('aborted'))))
+            : fakeAutocomplete({ onEvent }),
+    })
+    const slow = post(app, { url: 'https://event.dev/slow' })
+    await new Promise(resolve => setTimeout(resolve, 20))
+    const fast = await post(app, { url: 'https://event.dev/fast' })
+
+    assert.equal(events(fast.body).at(-1).type, 'done')
+    assert.deepEqual(events((await slow).body), [])
+})
+
 test('rejects anything that is not a URL', async () => {
     const app = await buildApp({ autocomplete: fakeAutocomplete })
     assert.equal((await post(app, { url: 'hello' })).statusCode, 400)
