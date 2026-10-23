@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 // 2. The form: one zod schema per type. Every field is optional, so the agent leaves unknown ones out
 //     instead of inventing them. `.describe()` is what the model reads to know what each field means.
-//     The same schemas become the update_form tool's input and the page's form (as JSON Schema).
+//     The same schemas are the agent's structured output and the page's form (as JSON Schema).
 const text = description => z.string().nullish().describe(description)
 const common = {
     title: text('title of the contribution'),

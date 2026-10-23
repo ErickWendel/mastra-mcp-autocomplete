@@ -1,40 +1,42 @@
 import { config } from '../config.js'
-import { createAgent } from './agent.js'
+import { createBrowserAgent } from './agent.js'
 import { browserTools } from './mcp.js'
-import { createUpdateForm } from './update-form.js'
-import { stepPlan } from './step-plan.js'
+import { createFormFiller } from './form-filler.js'
 
-const prepareStep = stepPlan({ firstSteps: ['browser_navigate'], maxSteps: config.maxSteps })
 const shortName = name => String(name).replace(/^browser_/, '')
+// prepareStep runs before every step and can force the tool: the first step always opens the page
+const openThePageFirst = ({ stepNumber }) => stepNumber === 0 ? { toolChoice: { type: 'tool', toolName: 'browser_navigate' } } : undefined
+// MCP tools answer with { content: [{ type: 'text', text }] }
+const resultText = result => result?.content?.map(part => part.text ?? '').join('\n') ?? JSON.stringify(result ?? '')
+// each finding says which call produced it ("find {"text":"Erick Wendel"}"), so the form agent knows what it's looking at
+const finding = ({ payload = {}, ...rest }) => {
+    const { toolName, args, result } = { ...rest, ...payload }
+    return `> ${shortName(toolName)} ${JSON.stringify(args ?? {})}\n${resultText(result)}`
+}
 
-// 8. Putting it together: the MCP browser tools + update_form, streaming every step.
-//    Fields arrive through update_form while the agent works; there's no final answer to parse.
+// 7. Putting it together: the browser agent browses with the MCP tools; after every step, what its tools saw goes
+//    to the form filler, and every new version of the form's JSON is sent to the page.
 export async function autocomplete({ type, url, onEvent = () => { }, signal }) {
-    const fields = {}
-    const updateForm = createUpdateForm(type, found => {
-        Object.assign(fields, found)
-        onEvent({ type: 'fields', fields: found })
+    const filler = createFormFiller(type, {
+        signal,
+        onChange: form => onEvent({ type: 'fields', fields: form }),
+        onError: error => onEvent({ type: 'warning', message: `form update skipped: ${error.message}` }),
     })
-    const agent = createAgent({ type, tools: { ...(await browserTools()), update_form: updateForm } })
+    const browser = createBrowserAgent({ type, tools: await browserTools() })
 
     onEvent({ type: 'model', modelId: config.model })
-    try {
-        await agent.generate(`Fill the form for ${url}`, {
-            maxSteps: config.maxSteps,
-            abortSignal: signal,
-            prepareStep,
-            modelSettings: { temperature: 0 },
-            onStepFinish: ({ toolCalls = [] }) => {
-                for (const call of toolCalls) {
-                    const name = call.payload?.toolName ?? call.toolName
-                    if (name !== 'update_form') onEvent({ type: 'tool', tool: shortName(name), args: call.payload?.args ?? call.args })
-                }
-            },
-        })
-    } catch (error) {
-        // a failure late in the run (a page that times out...) keeps what was already found
-        if (signal?.aborted || !Object.keys(fields).length) throw error
-    }
-    if (!Object.keys(fields).length) throw new Error('the agent found nothing on this page')
+    await browser.generate(`Research ${url}`, {
+        maxSteps: config.maxSteps,
+        abortSignal: signal,
+        prepareStep: openThePageFirst,
+        modelSettings: { temperature: 0 },
+        onStepFinish: ({ toolCalls = [], toolResults = [] }) => {
+            for (const call of toolCalls) onEvent({ type: 'tool', tool: shortName(call.payload?.toolName ?? call.toolName), args: call.payload?.args ?? call.args })
+            if (toolResults.length) filler.add(toolResults.map(finding).join('\n\n'))
+        },
+    })
+
+    const fields = await filler.result()
+    if (Object.values(fields).every(value => value == null)) throw new Error('the agent found nothing on this page')
     return { modelId: config.model, fields }
 }

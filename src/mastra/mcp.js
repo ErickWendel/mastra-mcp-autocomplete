@@ -3,7 +3,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import { mkdirSync } from 'fs'
 
-// 4. MCP tools: Playwright's MCP server gives the agent a real browser, started over stdio.
+// 3. MCP tools: Playwright's MCP server gives the agent a real browser, started over stdio.
 //    Mastra turns every MCP tool into a tool the agent can call. The browser starts once and is reused.
 //    navigate + find + targeted snapshots let the agent skim a page instead of reading all of it.
 const ALLOWED = ['browser_navigate', 'browser_find', 'browser_snapshot', 'browser_click', 'browser_wait_for']

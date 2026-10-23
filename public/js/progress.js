@@ -4,7 +4,8 @@ const describe = event => ({
     detected: `detected a ${event.contributionType}`,
     model: `thinking with ${event.modelId}`,
     tool: `${event.tool} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
-    fields: `filled ${Object.keys(event.fields ?? {}).join(', ')}`,
+    fields: `form now has ${Object.entries(event.fields ?? {}).filter(([, value]) => value != null).map(([name]) => name).join(', ')}`,
+    warning: event.message,
 })[event.type]
 
 export function createProgress(element) {
