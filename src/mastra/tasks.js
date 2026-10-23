@@ -6,8 +6,12 @@ export const tasks = {
     talk: {
         fields: ['title', 'summary', 'date', 'language', 'tags'],
         goal: `Find the talk given by ${config.speaker}. You may get any page of the event's site, even its home page:
-1. Find the agenda: links like Agenda, Programação, Programa, Schedule, Palestras, Charlas, Speakers, Palestrantes, Grade.
+1. Find the agenda: sections or links like Agenda, Programa, Programação, Schedule, Palestras, Charlas, Speakers,
+   Palestrantes, Grade.
 2. Search it for "${config.speaker}" and open the talk or speaker page when the agenda only shows the title.
+3. Agendas are often split into tabs or buttons (days, rooms, tracks: "Day 1", "Sala A", "Hall", room codes) and only
+   the selected one is on the page. When the name isn't found, snapshot the agenda section (small depth) to see them,
+   then click each one and search for the name again.
 Read the talk's title, description, date and language. A speaker card (the name, a role, a bio) is not the talk:
 when a page only lists speakers, keep going to the agenda until you find the talk's own title.`,
     },
