@@ -5,3 +5,6 @@ import { config } from '../config.js'
 const openrouter = createOpenRouter({ apiKey: config.openRouterKey })
 
 export const model = openrouter(config.model)
+
+// the model "thinks" before every step by default; for browsing that only adds time (~1s per step without it)
+export const withoutReasoning = { openrouter: { reasoning: { enabled: false } } }

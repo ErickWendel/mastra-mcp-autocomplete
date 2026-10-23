@@ -2,8 +2,8 @@
 const seconds = ms => `${(ms / 1000).toFixed(1)}s`
 const describe = event => ({
     model: `thinking with ${event.modelId}`,
-    tool: `${event.tool} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
-    fields: `filled ${Object.keys(event.fields ?? {}).join(', ')}`,
+    tool: `${event.task ? `[${event.task}] ` : ''}${event.tool} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
+    fields: `${event.task ? `[${event.task}] ` : ''}filled ${Object.keys(event.fields ?? {}).join(', ')}`,
     warning: event.message,
 })[event.type]
 

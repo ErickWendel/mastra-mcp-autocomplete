@@ -9,4 +9,6 @@ export const config = {
     // each step is one model call: a budget keeps a stubborn model from browsing forever
     // (an event's home page -> agenda -> session -> venue takes a few pages)
     maxSteps: 25,
+    // a task that is still looking for the last fields after this long stops, keeping what it found
+    taskTimeoutMs: 90_000,
 }

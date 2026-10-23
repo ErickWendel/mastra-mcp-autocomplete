@@ -11,6 +11,15 @@ const store = createStore()
 const progress = createProgress($('progress'))
 const form = createSchemaForm($('fields'))
 let current = null // { url, modelId, tookMs, controller }
+let running = null // the AbortController of the run in progress
+
+// while the agent works, the URL can't change and the button stops the run instead
+function setRunning(controller) {
+    running = controller
+    $('url').disabled = Boolean(controller)
+    $('autocomplete').textContent = controller ? '■ Stop' : 'Autocomplete'
+    $('autocomplete').classList.toggle('stop', Boolean(controller))
+}
 
 const refresh = freshId => renderGrid($('grid'), $('count'), store.list(), freshId)
 
@@ -24,11 +33,9 @@ function onStep(step) {
     if (step.type === 'error') progress.finish(step.message, true)
 }
 
-// starting a new run cancels the previous one
 async function run() {
     const url = $('url').value.trim()
-    if (!/^https?:\/\//.test(url)) return
-    current?.controller.abort()
+    if (running || !/^https?:\/\//.test(url)) return
     form.render(schema)
     // already saved: no need to ask the agent again
     const existing = store.findByUrl(url)
@@ -42,18 +49,24 @@ async function run() {
     current = { url, controller }
     $('save').disabled = false
     progress.start(url)
+    setRunning(controller)
     try {
         await autocomplete({ url, signal: controller.signal }, onStep)
     } catch (error) {
-        if (!controller.signal.aborted) progress.finish(error.message, true)
+        progress.finish(controller.signal.aborted ? 'stopped: keep what was found or clear it' : error.message, true)
+    } finally {
+        setRunning(null)
     }
 }
 
-$('url-form').addEventListener('submit', event => { event.preventDefault(); run() })
+// stopping aborts the request; the server sees the connection close and stops the agent
+const stop = () => running?.abort()
+
+$('url-form').addEventListener('submit', event => { event.preventDefault(); running ? stop() : run() })
 $('url').addEventListener('paste', () => setTimeout(run))
 
 function reset() {
-    current?.controller.abort()
+    stop()
     current = null
     $('url').value = ''
     $('save').disabled = true

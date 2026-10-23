@@ -1,12 +1,12 @@
 import { Agent } from '@mastra/core/agent'
 import { model } from './model.js'
-import { instructions } from './instructions.js'
+import { instructionsFor } from './instructions.js'
 
-// 6. The agent: a model + instructions + tools.
-export const createAgent = tools => new Agent({
-    id: 'talk-autocomplete',
-    name: 'talk autocomplete',
-    instructions,
+// 7. An agent: a model + instructions + tools. One per task.
+export const createAgent = ({ name, task, tools }) => new Agent({
+    id: `${name}-agent`,
+    name: `${name} agent`,
+    instructions: instructionsFor(task),
     model,
     tools,
 })

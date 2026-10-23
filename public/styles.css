@@ -57,6 +57,8 @@ button.ghost:hover { color: var(--danger); border-color: var(--danger); }
 .fields textarea { min-height: 84px; resize: vertical; }
 .fields input:focus, .fields select:focus, .fields textarea:focus { border-color: var(--green); }
 .fields .filled { border-color: var(--green); box-shadow: 0 0 0 3px rgb(34 197 94 / 0.25); }
+.url-form input:disabled { opacity: 0.6; }
+button.stop { background: transparent; color: var(--danger); border-color: var(--danger); }
 .actions { display: flex; gap: 8px; margin-top: 14px; }
 .actions button[type=submit] { padding: 10px 24px; }
 @media (max-width: 640px) { .fields { grid-template-columns: 1fr; } }

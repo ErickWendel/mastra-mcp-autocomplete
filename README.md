@@ -1,15 +1,16 @@
 # Mastra + MCP autocomplete
 
-Paste an event's link: the agenda, a talk page or even the home page. A [Mastra](https://mastra.ai) agent browses it like a
-person through the [Playwright MCP server](https://github.com/microsoft/playwright-mcp): it opens the page, *searches* it
-for what it needs (`browser_find`), zooms into one section (`browser_snapshot` with a target), and clicks through to the
-agenda, your talk and the venue. Every field it finds is pushed to the form right away (the `update_form` tool); you review
-it and save it to a grid kept in your browser (localStorage).
+Paste an event's link: the agenda, a talk page or even the home page. Two [Mastra](https://mastra.ai) agents work on
+it at the same time, each with its own browser through the [Playwright MCP server](https://github.com/microsoft/playwright-mcp):
+one finds the talk (agenda → speaker → talk page), the other finds the event and its address. They browse like a person:
+open the page, *search* it (`browser_find`), zoom into one section (`browser_snapshot` with a target), click through.
+Every field they find is pushed to the form right away (the `update_form` tool); you review it and save it to a grid kept
+in your browser (localStorage). The button turns into **Stop** while they work.
 
 ```
-event URL ─▶ Mastra Agent ──▶ Playwright MCP: navigate · find · snapshot(target) · click
-                    │
-                    └─▶ update_form (as it goes) ─▶ SSE ─▶ form fills live ─▶ Save ─▶ localStorage
+                ┌─▶ talk agent  ── Playwright MCP #1 ──▶ update_form(title, summary, date, language, tags) ─┐
+event URL ──────┤                                                                                         ├─▶ SSE ─▶ form fills live ─▶ Save ─▶ localStorage
+                └─▶ event agent ── Playwright MCP #2 ──▶ update_form(eventName, venue, city, country, …) ─┘
 ```
 
 ## Run it
@@ -29,23 +30,25 @@ Each file in `src/mastra/` does one thing (the number is in each file's first co
 
 | # | File | What it shows |
 |---|------|---------------|
-| 1 | `model.js` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. |
-| 2 | `schemas.js` | The talk form as a zod schema. The same schema is the `update_form` input and the page's form (as JSON Schema). |
-| 3 | `update-form.js` | A local tool (`createTool`) whose side effect streams the fields it receives to the page. |
-| 4 | `mcp.js` | `MCPClient` starts the Playwright MCP server over stdio once; only 5 tools are exposed (fewer tools = a faster, less confused model, and no `run_code_unsafe`). |
-| 5 | `instructions.js` | The system prompt: how to browse (search, then zoom in), the navigation playbook (home page → agenda → talk → venue), never guess. |
-| 6 | `agent.js` | `new Agent({ instructions, model, tools })`. |
-| 7 | `step-plan.js` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
-| 8 | `autocomplete.js` | `agent.generate()` with `maxSteps`, `prepareStep`, `onStepFinish` (live steps) and `abortSignal` (cancel). |
+| 1 | `model.js` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Reasoning is turned off: ~1s per step instead of ~10s. |
+| 2 | `schemas.js` | The talk form as a zod schema: the `update_form` input and the page's form (as JSON Schema). |
+| 3 | `tasks.js` | The independent tasks (talk, event): each one's goal and its part of the form. |
+| 4 | `update-form.js` | A local tool (`createTool`) for one task's fields: it streams them to the page and answers with what's still missing. |
+| 5 | `mcp.js` | `MCPClient` starts one Playwright MCP server per task over stdio (one browser can't serve two agents); only 5 tools are exposed (no `run_code_unsafe`). |
+| 6 | `instructions.js` | The task's goal + how to browse (search, then zoom in) + never guess. |
+| 7 | `agent.js` | `new Agent({ instructions, model, tools })`, one per task. |
+| 8 | `step-plan.js` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
+| 9 | `autocomplete.js` | The tasks run in parallel (`Promise.allSettled`); each `agent.generate()` gets `maxSteps`, `prepareStep`, `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, or after `taskTimeoutMs`. |
 
 Things worth showing:
 
-- **Tools beat a final answer for live UIs.** The agent never returns JSON at the end: it calls `update_form` whenever it
-  finds something, and the page fills while it's still browsing.
-- **`prepareStep` turns "please do X" into "X happens".** Free models don't always follow instructions; forcing the tool
-  choice on specific steps makes the flow reliable.
-- **Token-cheap browsing.** `browser_navigate` returns only the title, `browser_find` returns snippets, and a snapshot is
-  only taken of one section, instead of feeding the whole page to the model on every step.
+- **Split independent work, run it in parallel.** The talk and the address don't depend on each other: two agents with
+  two browsers fill the form in about half the time, and one failing doesn't stop the other.
+- **Tools beat a final answer for live UIs.** `update_form` fills the form while the agents are still browsing, and its
+  answer (`missing: [...]`) steers what each agent looks for next.
+- **`prepareStep` turns "please do X" into "X happens"** by forcing the tool choice on specific steps.
+- **Token-cheap browsing, and reasoning off.** `browser_navigate` returns only the title, `browser_find` returns snippets,
+  a snapshot covers one section; with reasoning off most steps take about a second.
 
 ## The rest of the app
 
@@ -61,7 +64,8 @@ Things worth showing:
 ## Configuration
 
 `.env` holds only `OPEN_ROUTER_KEY` and `PORT` (default `3333`); `SPEAKER_NAME` (default `Erick Wendel`) is optional.
-The model and the step budget are in `src/config.js`.
+The model, the step budget and the per-task time limit are in `src/config.js`.
 
-It's a local, single-user app: one shared browser serves one autocomplete at a time (pasting a new URL cancels the
-previous run).
+The model is free, so speed depends on OpenRouter's free tier: when it's busy, a single step can take a minute.
+
+It's a local, single-user app: the two browsers are shared between runs, so it handles one autocomplete at a time.
