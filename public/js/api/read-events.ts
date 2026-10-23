@@ -1,4 +1,4 @@
-import type { AgentEvent } from '../../../src/types/agent-event.ts'
+import type { AgentEvent } from '../../../src/mastra/autocomplete.ts'
 
 // Server-sent events from a fetch response body, one at a time, as an async generator:
 // `for await (const event of readEvents(body))`. EventSource can't do this: it only sends GET requests.

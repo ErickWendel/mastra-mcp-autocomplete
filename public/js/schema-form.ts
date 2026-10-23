@@ -1,7 +1,7 @@
 import { escapeHtml } from './escape-html.ts'
 import { fieldKind } from './field-kind.ts'
-import type { FieldSchema } from './types/field-schema.ts'
-import type { FormSchema } from './types/form-schema.ts'
+import type { FieldSchema } from './field-kind.ts'
+import type { FormSchema } from './api/get-form.ts'
 
 type Input = HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 

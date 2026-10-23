@@ -5,9 +5,9 @@ import { createUpdateForm } from '../form/update-form.ts'
 import { stepPlan } from './step-plan.ts'
 import { toolCallInfo } from './tool-call-info.ts'
 import { withoutReasoning } from '../model/without-reasoning.ts'
-import type { AgentEvent } from '../../types/agent-event.ts'
-import type { Task } from '../../types/task.ts'
-import type { Talk } from '../../types/talk.ts'
+import type { AgentEvent } from '../autocomplete.ts'
+import type { Task } from '../tasks/tasks.ts'
+import type { Talk } from '../form/schema.ts'
 
 const prepareStep = stepPlan({ firstSteps: ['browser_navigate'], maxSteps: config.maxSteps })
 

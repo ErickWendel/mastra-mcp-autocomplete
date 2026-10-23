@@ -1,6 +1,6 @@
 import { openStream } from '../lib/open-stream.ts'
 import type { FastifyInstance } from 'fastify'
-import type { AutocompleteFunction } from '../types/autocomplete-function.ts'
+import type { AutocompleteFunction } from '../mastra/autocomplete.ts'
 
 // POST /api/autocomplete { url } -> a stream of steps; fields arrive as the agents find them.
 // Nothing is saved on the server: the page reviews the form and keeps it in localStorage.

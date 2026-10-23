@@ -5,7 +5,7 @@ import { createStore } from './storage.ts'
 import { createProgress } from './progress.ts'
 import { createSchemaForm } from './schema-form.ts'
 import { renderGrid } from './grid.ts'
-import type { AgentEvent } from '../../src/types/agent-event.ts'
+import type { AgentEvent } from '../../src/mastra/autocomplete.ts'
 
 // Wires the pieces together: URL ➜ agents' stream ➜ form (filled live) ➜ save (localStorage) ➜ grid.
 const urlInput = byId<HTMLInputElement>('url')

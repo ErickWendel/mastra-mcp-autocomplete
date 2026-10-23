@@ -1,4 +1,13 @@
-import type { SavedTalk } from './types/saved-talk.ts'
+import type { Talk } from '../../src/mastra/form/schema.ts'
+
+// A talk saved in the browser: the form's fields plus where it came from.
+export type SavedTalk = Partial<Talk> & {
+    id: string
+    savedAt: string
+    url: string
+    modelId?: string
+    tookMs?: number
+}
 
 // Saved talks live in this browser (localStorage); nothing is written on the server.
 // The same URL (ignoring query, hash and trailing slash) is never saved twice.

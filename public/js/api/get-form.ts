@@ -1,4 +1,7 @@
-import type { FormSchema } from '../types/form-schema.ts'
+import type { FieldSchema } from '../field-kind.ts'
+
+// The form's JSON Schema, served by GET /api/form.
+export type FormSchema = { properties: Record<string, FieldSchema> }
 
 // The form's JSON Schema: the page draws the same form the agents fill.
 export async function getForm(): Promise<FormSchema> {

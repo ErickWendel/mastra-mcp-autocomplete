@@ -1,7 +1,23 @@
 import { config } from '../config.ts'
 import { runTask } from './agent/run-task.ts'
 import { tasks } from './tasks/tasks.ts'
-import type { AutocompleteFunction } from '../types/autocomplete-function.ts'
+import type { Talk } from './form/schema.ts'
+
+// Everything streamed to the page while the agents work.
+export type AgentEvent =
+    | { type: 'model', modelId: string }
+    | { type: 'tool', task: string, tool: string, args: unknown }
+    | { type: 'fields', task: string, fields: Partial<Talk> }
+    | { type: 'warning', message: string }
+    | { type: 'done', modelId: string, fields: Partial<Talk>, tookMs: number }
+    | { type: 'error', message: string }
+
+// What the HTTP route needs from the agents: this function, or a fake in the tests.
+export type AutocompleteFunction = (options: {
+    url: string
+    onEvent?: (event: AgentEvent) => void
+    signal?: AbortSignal
+}) => Promise<{ modelId: string, fields: Partial<Talk> }>
 
 const messageOf = (reason: unknown) => reason instanceof Error ? reason.message : String(reason)
 

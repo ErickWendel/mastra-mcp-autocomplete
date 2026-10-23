@@ -35,7 +35,8 @@ The browser can't run TypeScript, so `src/routes/browser-scripts-route.ts` strip
 Node's own `stripTypeScriptTypes` as it serves them. The page and the server share types (`AgentEvent`, `Talk`) through
 `import type`, which disappears before the browser sees it.
 
-Every file has one export and one job. Modern bits used along the way: `await using` (the browsers close themselves),
+Every file has one job and one export, plus the types that belong to it: `Talk` lives with the schema it's inferred
+from, `Task` with the tasks, `AgentEvent` with `autocomplete` (its stream of events), `SavedTalk` with the store. Modern bits used along the way: `await using` (the browsers close themselves),
 `Promise.withResolvers`, `Set#difference`, iterator helpers, `AbortSignal.any`/`timeout`, async generators with
 `for await` (the page reads the agents' stream) and `import.meta.dirname`.
 
@@ -47,15 +48,15 @@ Every file has one export and one job. Modern bits used along the way: `await us
 |---|---------|------|---------------|
 | 1 | `model/` | `model.ts` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Claude Haiku 5.5 by default (about $0.001 per run). |
 | 2 | `model/` | `without-reasoning.ts` | Provider options that turn the model's reasoning off: ~1s per step instead of ~10s. |
-| 3 | `form/` | `schema.ts` | The talk form as a zod schema: the `update_form` input, the page's form (as JSON Schema) and the `Talk` type. |
-| 4 | `tasks/` | `talk-task.ts`, `event-task.ts`, `tasks.ts` | The independent tasks: each one's goal and its part of the form. |
+| 3 | `form/` | `schema.ts` | The talk form as a zod schema: the `update_form` input, the page's form (as JSON Schema) and the `Talk` / `TalkField` types. |
+| 4 | `tasks/` | `talk-task.ts`, `event-task.ts`, `tasks.ts` | The independent tasks (the `Task` type): each one's goal and its part of the form. |
 | 5 | `form/` | `update-form.ts` (+ `is-empty.ts`) | A local tool (`createTool`) for one task's fields: it streams them to the page and answers with what's still missing. |
 | 6 | `browser/` | `browsers.ts` | `MCPClient` starts one Playwright MCP server per task over stdio (one browser can't serve two agents); only 5 tools are exposed (no `run_code_unsafe`). |
 | 7 | `agent/` | `instructions-for.ts` | The task's goal + how to browse (search, then zoom in) + never guess. |
 | 8 | `agent/` | `create-agent.ts` | `new Agent({ instructions, model, tools })`, one per task. |
 | 9 | `agent/` | `step-plan.ts` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
 | 10 | `agent/` | `run-task.ts` (+ `tool-call-info.ts`) | One task's `agent.generate()`: `maxSteps`, `prepareStep`, `toolCallConcurrency: 1` (a step's browser actions run in order, so "click a tab, then search it" works), `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
-| 11 | (root) | `autocomplete.ts` | The tasks run in parallel (`Promise.allSettled`); one failing doesn't stop the other. |
+| 11 | (root) | `autocomplete.ts` | The tasks run in parallel (`Promise.allSettled`); one failing doesn't stop the other. Its types are the contract with the rest of the app: `AgentEvent` (what streams to the page) and `AutocompleteFunction`. |
 
 ```
 src/mastra/
@@ -82,7 +83,6 @@ Things worth showing:
 | Path | Responsibility |
 |------|----------------|
 | `src/config.ts` | Model, step budget, idle steps, per-task time limit, speaker name. |
-| `src/types/` | Shared types: `Talk`, `TalkField`, `Task`, `AgentEvent`, `AutocompleteFunction`. |
 | `src/lib/open-stream.ts` | Server-sent events so the page sees each step live. |
 | `src/routes/` | `POST /api/autocomplete` (one run at a time; a new one cancels the previous), `GET /api/form`, and the route that serves the page's TypeScript as JavaScript. The server saves nothing. |
 | `src/app.ts` / `src/server.ts` | Fastify app built from an injectable `autocomplete` (the tests pass a fake), and its entry point. |

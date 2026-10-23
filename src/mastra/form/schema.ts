@@ -17,3 +17,7 @@ export const schema = z.object({
     country: text('country, in English'),
     attendees: z.number().nullish().describe('attendees/registrations if shown'),
 })
+
+// A talk as the form holds it (every field optional), and the name of one of its fields.
+export type Talk = z.infer<typeof schema>
+export type TalkField = keyof Talk

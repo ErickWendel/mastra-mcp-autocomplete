@@ -1,5 +1,5 @@
 import { escapeHtml } from './escape-html.ts'
-import type { SavedTalk } from './types/saved-talk.ts'
+import type { SavedTalk } from './storage.ts'
 
 function card(item: SavedTalk, fresh: boolean) {
     const meta = [item.date, item.language, [item.city, item.country].filter(Boolean).join(', '), item.address,

@@ -1,5 +1,5 @@
 import { config } from '../../config.ts'
-import type { Task } from '../../types/task.ts'
+import type { Task } from './tasks.ts'
 
 // 4a. Finding the talk: agenda -> the speaker's name -> the talk's own entry.
 export const talkTask = {

@@ -2,8 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { buildApp } from '../src/app.ts'
 import type { FastifyInstance } from 'fastify'
-import type { AgentEvent } from '../src/types/agent-event.ts'
-import type { AutocompleteFunction } from '../src/types/autocomplete-function.ts'
+import type { AgentEvent, AutocompleteFunction } from '../src/mastra/autocomplete.ts'
 
 // a fake agent: the routes are tested without a browser or a model
 const fakeAutocomplete: AutocompleteFunction = async ({ onEvent = () => { } }) => {

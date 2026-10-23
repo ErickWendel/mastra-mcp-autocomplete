@@ -2,7 +2,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createUpdateForm } from '../src/mastra/form/update-form.ts'
 import type { z } from 'zod'
-import type { Talk } from '../src/types/talk.ts'
+import type { Talk } from '../src/mastra/form/schema.ts'
 
 const run = (tool: ReturnType<typeof createUpdateForm>, input: Partial<Talk>) => tool.execute!(input, {} as never)
 

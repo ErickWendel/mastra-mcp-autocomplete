@@ -1,4 +1,4 @@
-import type { Task } from '../../types/task.ts'
+import type { Task } from './tasks.ts'
 
 // 4b. Finding the event: its official name, street address, city, country and audience.
 export const eventTask = {

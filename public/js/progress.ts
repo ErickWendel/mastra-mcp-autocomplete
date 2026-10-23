@@ -1,5 +1,5 @@
 import { describeEvent } from './describe-event.ts'
-import type { AgentEvent } from '../../src/types/agent-event.ts'
+import type { AgentEvent } from '../../src/mastra/autocomplete.ts'
 
 const seconds = (ms: number) => `${(ms / 1000).toFixed(1)}s`
 const tag = <K extends keyof HTMLElementTagNameMap>(name: K, properties: Partial<HTMLElementTagNameMap[K]> = {}) =>

@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { autocompleteRoute } from './routes/autocomplete-route.ts'
 import { browserScriptsRoute } from './routes/browser-scripts-route.ts'
 import { formRoute } from './routes/form-route.ts'
-import type { AutocompleteFunction } from './types/autocomplete-function.ts'
+import type { AutocompleteFunction } from './mastra/autocomplete.ts'
 
 // The HTTP app: runs the agents and serves the page. Built from its dependency so the tests pass a fake agent.
 export async function buildApp({ autocomplete }: { autocomplete: AutocompleteFunction }) {

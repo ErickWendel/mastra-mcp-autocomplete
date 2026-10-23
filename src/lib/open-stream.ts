@@ -1,5 +1,5 @@
 import type { FastifyReply } from 'fastify'
-import type { AgentEvent } from '../types/agent-event.ts'
+import type { AgentEvent } from '../mastra/autocomplete.ts'
 
 // Server-sent events: the browser receives each step as it happens.
 export function openStream(reply: FastifyReply) {
