@@ -1,4 +1,4 @@
-import type { AgentEvent } from '../../src/mastra/autocomplete.ts'
+import type { AgentEvent } from '../../../src/mastra/autocomplete.ts'
 
 const prefix = (task: string) => `[${task}] `
 

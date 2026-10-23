@@ -1,4 +1,4 @@
-import type { FieldSchema } from '../field-kind.ts'
+import type { FieldSchema } from '../form/field-kind.ts'
 
 // The form's JSON Schema, served by GET /api/form.
 export type FormSchema = { properties: Record<string, FieldSchema> }

@@ -86,8 +86,24 @@ Things worth showing:
 | `src/lib/open-stream.ts` | Server-sent events so the page sees each step live. |
 | `src/routes/` | `POST /api/autocomplete` (one run at a time; a new one cancels the previous), `GET /api/form`, and the route that serves the page's TypeScript as JavaScript. The server saves nothing. |
 | `src/app.ts` / `src/server.ts` | Fastify app built from an injectable `autocomplete` (the tests pass a fake), and its entry point. |
-| `public/js/` | The page, one export per file: `api/` (the stream as an async generator, the form), `schema-form.ts` + `field-kind.ts` (form from JSON Schema, filled live), `storage.ts` (saved talks in localStorage, no duplicate URLs), `progress.ts` + `describe-event.ts`, `grid.ts`, `escape-html.ts`, `by-id.ts`, `app.ts` (wiring). |
+| `public/js/` | The page, organized the same way (see below). |
 | `scripts/try.ts` | Runs the agents from the terminal (`await using` closes the browsers). |
+
+## The page
+
+`public/js/` is organized by context too: one job and one export per file, plus the types that belong to it.
+`main.ts` only wires the pieces together.
+
+```
+public/js/
+├── main.ts     the wiring: URL ➜ agents' stream ➜ form ➜ save ➜ grid
+├── api/        get-form.ts (FormSchema) · stream-autocomplete.ts · read-events.ts (SSE as an async generator)
+├── run/        create-run.ts (one run at a time, Stop) · run-controls.ts (locked input, Stop button) · step-handler.ts
+├── form/       schema-form.ts (SchemaForm) · input-html.ts · field-kind.ts (FieldSchema) · field-values.ts
+├── progress/   progress.ts (Progress) · describe-event.ts
+├── talks/      talk-store.ts (SavedTalk, localStorage) · talk-grid.ts · talk-card.ts
+└── dom/        by-id.ts · create-element.ts · escape-html.ts
+```
 
 ## Configuration
 

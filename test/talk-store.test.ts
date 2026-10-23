@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { createStore } from '../public/js/storage.ts'
+import { createTalkStore as createStore } from '../public/js/talks/talk-store.ts'
 
 // the browser's localStorage, in memory
 const fakeStorage = () => {

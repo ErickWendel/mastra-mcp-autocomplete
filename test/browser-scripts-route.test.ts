@@ -5,10 +5,10 @@ import { buildApp } from '../src/app.ts'
 const app = await buildApp({ autocomplete: async () => ({ modelId: 'fake', fields: {} }) })
 
 test('serves the page TypeScript as JavaScript, types stripped', async () => {
-    const response = await app.inject('/js/storage.ts')
+    const response = await app.inject('/js/talks/talk-store.ts')
     assert.equal(response.statusCode, 200)
     assert.match(String(response.headers['content-type']), /text\/javascript/)
-    assert.match(response.body, /export function createStore/)
+    assert.match(response.body, /export function createTalkStore/)
     assert.doesNotMatch(response.body, /: SavedTalk\[\]|import type/)
 })
 
