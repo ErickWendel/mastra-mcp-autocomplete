@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mastra + MCP autocomplete</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <main>
+        <header>
+            <h1><span class="accent">&gt;_</span> autocomplete</h1>
+            <p class="muted">Paste a post, YouTube or event URL. A Mastra agent opens it in a real browser (Playwright MCP) and fills the card.</p>
+        </header>
+
+        <form id="form" autocomplete="off">
+            <input id="url" type="url" placeholder="https://..." required />
+            <button id="submit" type="submit">Autocomplete</button>
+        </form>
+
+        <section id="progress" class="progress" hidden></section>
+
+        <section>
+            <h2>Saved <span id="count" class="muted"></span></h2>
+            <div id="grid" class="grid"></div>
+        </section>
+    </main>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

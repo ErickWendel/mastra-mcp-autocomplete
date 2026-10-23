@@ -1,0 +1,24 @@
+{
+  "name": "mastra-mcp-autocomplete",
+  "version": "1.0.0",
+  "description": "Paste a post, YouTube or event URL: a Mastra agent browses it through the Playwright MCP server and fills the form",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=.env src/server.js",
+    "dev": "node --env-file=.env --watch src/server.js",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/static": "^10.1.7",
+    "@mastra/core": "^1.79.0",
+    "@mastra/mcp": "^2.5.0",
+    "@openrouter/ai-sdk-provider": "^3.1.0",
+    "fastify": "^5.12.7",
+    "zod": "^4.6.7"
+  }
+}
