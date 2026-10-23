@@ -6,12 +6,12 @@ import { z } from 'zod'
 const text = description => z.string().nullish().describe(description)
 
 export const schema = z.object({
-    title: text('title of the talk/session given by the speaker, not the event name'),
+    title: text("title of the talk/session given by the speaker; not the event's name, not the speaker's name or bio"),
     summary: text('2-3 sentences in your own words about the talk, in the language of the talk'),
     date: text('date of the talk, YYYY-MM-DD'),
     language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language the talk is given in'),
     tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags about the talk'),
-    eventName: text('official name of the event (as in its title or logo), not its slogan or tagline'),
+    eventName: text('official name of the event (as in the page title or logo, often with a year), not its slogan or tagline'),
     venue: text('venue name and street address'),
     city: text('city of the event'),
     country: text('country, in English'),

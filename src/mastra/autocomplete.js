@@ -10,13 +10,16 @@ const prepareStep = stepPlan({ firstSteps: ['browser_navigate'], maxSteps: confi
 const shortName = name => String(name).replace(/^browser_/, '')
 
 // One task: an agent with its own browser and its own part of the form. Every step is reported with the task's name.
-// It stops when its fields are all filled or its time is up (keeping what it found), or when the user stops the run.
+// It stops when its fields are all filled, when it stops finding new ones, or when its time is up (keeping what it
+// found), or when the user stops the run.
 async function runTask({ name, task, url, onEvent, signal }) {
     const fields = {}
+    let idleSteps = 0
     const complete = new AbortController()
     const taskSignal = AbortSignal.any([signal, complete.signal, AbortSignal.timeout(config.taskTimeoutMs)].filter(Boolean))
     const updateForm = createUpdateForm(task.fields, found => {
         Object.assign(fields, found)
+        idleSteps = 0
         onEvent({ type: 'fields', task: name, fields: found })
         if (task.fields.every(field => field in fields)) complete.abort()
     })
@@ -29,6 +32,7 @@ async function runTask({ name, task, url, onEvent, signal }) {
             modelSettings: { temperature: 0 },
             providerOptions: withoutReasoning,
             onStepFinish: ({ toolCalls = [] }) => {
+                if (Object.keys(fields).length && ++idleSteps > config.idleSteps) complete.abort()
                 for (const call of toolCalls) {
                     const tool = call.payload?.toolName ?? call.toolName
                     if (tool !== 'update_form') onEvent({ type: 'tool', task: name, tool: shortName(tool), args: call.payload?.args ?? call.args })

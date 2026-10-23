@@ -18,7 +18,7 @@ event URL ──────┤                                                 
 ```bash
 nvm use                # Node 22
 npm install
-cp .env.example .env   # add your OPEN_ROUTER_KEY (the model is free)
+cp .env.example .env   # add your OPEN_ROUTER_KEY
 npm start              # http://localhost:3333
 npm test
 npm run try -- <url>   # the agent in the terminal, with timings
@@ -30,7 +30,7 @@ Each file in `src/mastra/` does one thing (the number is in each file's first co
 
 | # | File | What it shows |
 |---|------|---------------|
-| 1 | `model.js` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Reasoning is turned off: ~1s per step instead of ~10s. |
+| 1 | `model.js` | A model through OpenRouter (`@openrouter/ai-sdk-provider`); Mastra speaks the AI SDK interface. Claude Haiku 5.5 by default (about $0.001 per run); reasoning is turned off for speed. |
 | 2 | `schemas.js` | The talk form as a zod schema: the `update_form` input and the page's form (as JSON Schema). |
 | 3 | `tasks.js` | The independent tasks (talk, event): each one's goal and its part of the form. |
 | 4 | `update-form.js` | A local tool (`createTool`) for one task's fields: it streams them to the page and answers with what's still missing. |
@@ -38,7 +38,7 @@ Each file in `src/mastra/` does one thing (the number is in each file's first co
 | 6 | `instructions.js` | The task's goal + how to browse (search, then zoom in) + never guess. |
 | 7 | `agent.js` | `new Agent({ instructions, model, tools })`, one per task. |
 | 8 | `step-plan.js` | `prepareStep`: forces the first step (open the page) and an `update_form` every few steps and on the last one. |
-| 9 | `autocomplete.js` | The tasks run in parallel (`Promise.allSettled`); each `agent.generate()` gets `maxSteps`, `prepareStep`, `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, or after `taskTimeoutMs`. |
+| 9 | `autocomplete.js` | The tasks run in parallel (`Promise.allSettled`); each `agent.generate()` gets `maxSteps`, `prepareStep`, `onStepFinish` and an `abortSignal` that fires on Stop, when its fields are complete, after `idleSteps` steps without anything new, or after `taskTimeoutMs`. |
 
 Things worth showing:
 
@@ -64,8 +64,10 @@ Things worth showing:
 ## Configuration
 
 `.env` holds only `OPEN_ROUTER_KEY` and `PORT` (default `3333`); `SPEAKER_NAME` (default `Erick Wendel`) is optional.
-The model, the step budget and the per-task time limit are in `src/config.js`.
+The model, the step budget, the idle-step limit and the per-task time limit are in `src/config.js`.
 
-The model is free, so speed depends on OpenRouter's free tier: when it's busy, a single step can take a minute.
+The default model, `anthropic/claude-haiku-5.5`, costs about $0.001 per run and fills a talk in 10-20 seconds. Free models
+work too (e.g. `nvidia/nemotron-3.5-super-vl:free`), but they are slower, less accurate, and stall when OpenRouter's free
+tier is busy.
 
 It's a local, single-user app: the two browsers are shared between runs, so it handles one autocomplete at a time.
