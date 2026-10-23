@@ -4,8 +4,8 @@ import { createUpdateForm } from '../src/mastra/update-form.js'
 
 test('sends the fields it gets and answers with the ones still missing', async () => {
     const sent = []
-    const tool = createUpdateForm(['city', 'country', 'venue'], fields => sent.push(fields))
-    assert.deepEqual(await tool.execute({ city: 'Madrid', venue: '' }, {}), { saved: ['city'], missing: ['country', 'venue'] })
+    const tool = createUpdateForm(['city', 'country', 'address'], fields => sent.push(fields))
+    assert.deepEqual(await tool.execute({ city: 'Madrid', address: '' }, {}), { saved: ['city'], missing: ['country', 'address'] })
     assert.deepEqual(sent, [{ city: 'Madrid' }])
 })
 

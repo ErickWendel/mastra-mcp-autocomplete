@@ -2,7 +2,7 @@
 const escape = text => String(text ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
 
 function card(item, fresh) {
-    const meta = [item.date, item.language, [item.city, item.country].filter(Boolean).join(', '), item.venue,
+    const meta = [item.date, item.language, [item.city, item.country].filter(Boolean).join(', '), item.address,
         item.attendees && `${item.attendees} attendees`].filter(Boolean)
     return `
         <article class="card ${fresh ? 'fresh' : ''}">

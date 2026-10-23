@@ -50,5 +50,5 @@ test('serves the form as JSON Schema', async () => {
     const app = await buildApp({ autocomplete: fakeAutocomplete })
     const form = (await app.inject('/api/form')).json()
     assert.ok(form.properties.title)
-    assert.ok(form.properties.venue)
+    assert.ok(form.properties.address)
 })

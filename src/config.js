@@ -7,7 +7,7 @@ export const config = {
     // who the agent looks for on event pages (a talk page often lists many speakers)
     speaker: process.env.SPEAKER_NAME || 'Erick Wendel',
     // each step is one model call: a budget keeps a stubborn model from browsing forever
-    // (an event's home page -> agenda -> session -> venue takes a few pages)
+    // (an event's home page -> agenda -> session -> address takes a few pages)
     maxSteps: 25,
     // a task that found something and then goes this many steps without anything new stops (some fields aren't on the site)
     idleSteps: 4,

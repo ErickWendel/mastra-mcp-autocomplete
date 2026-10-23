@@ -12,7 +12,7 @@ export const schema = z.object({
     language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language the talk is given in'),
     tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags about the talk'),
     eventName: text('official name of the event (as in the page title or logo, often with a year), not its slogan or tagline'),
-    venue: text("venue's full name (the most complete one the site gives) and street address"),
+    address: text("street address of the event: street, number, neighborhood, postal code; not the venue's name"),
     city: text('city of the event'),
     country: text('country, in English'),
     attendees: z.number().nullish().describe('attendees/registrations if shown'),

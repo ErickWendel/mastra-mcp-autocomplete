@@ -10,7 +10,7 @@ in your browser (localStorage). The button turns into **Stop** while they work.
 ```
                 ┌─▶ talk agent  ── Playwright MCP #1 ──▶ update_form(title, summary, date, language, tags) ─┐
 event URL ──────┤                                                                                         ├─▶ SSE ─▶ form fills live ─▶ Save ─▶ localStorage
-                └─▶ event agent ── Playwright MCP #2 ──▶ update_form(eventName, venue, city, country, …) ─┘
+                └─▶ event agent ── Playwright MCP #2 ──▶ update_form(eventName, address, city, country, …) ─┘
 ```
 
 ## Run it
