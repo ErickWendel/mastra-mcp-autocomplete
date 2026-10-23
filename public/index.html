@@ -10,15 +10,24 @@
     <main>
         <header>
             <h1><span class="accent">&gt;_</span> autocomplete</h1>
-            <p class="muted">Paste a post, YouTube or event URL. A Mastra agent opens it in a real browser (Playwright MCP) and fills the card.</p>
+            <p class="muted">Paste a post, YouTube or event URL. A Mastra agent reads it (fetch first, a real browser through Playwright MCP when needed) and fills the form as it finds each field.</p>
         </header>
 
-        <form id="form" autocomplete="off">
-            <input id="url" type="url" placeholder="https://..." required />
-            <button id="submit" type="submit">Autocomplete</button>
+        <form id="url-form" class="url-form" autocomplete="off">
+            <input id="url" type="url" placeholder="paste a URL: https://..." required />
+            <button id="autocomplete" type="submit">Autocomplete</button>
         </form>
+        <div id="types" class="types"></div>
 
         <section id="progress" class="progress" hidden></section>
+
+        <form id="contribution" class="contribution" autocomplete="off">
+            <div id="fields" class="fields"></div>
+            <div class="actions">
+                <button id="save" type="submit" disabled>Save</button>
+                <button id="clear" type="button" class="ghost">clear</button>
+            </div>
+        </form>
 
         <section>
             <h2>Saved <span id="count" class="muted"></span></h2>

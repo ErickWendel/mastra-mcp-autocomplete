@@ -1,35 +1,37 @@
 import { config } from '../config.js'
 import { createAgent } from './agent.js'
-import { createBrowser } from './mcp.js'
-import { schemas } from './schemas.js'
-import { modelFor } from './model.js'
+import { strategies } from './strategies.js'
+import { createUpdateForm } from './tools/update-form.js'
+import { stepPlan } from './step-plan.js'
 
-// 6. Putting it together: browse with the MCP tools, then answer with the schema.
-//    `onEvent` reports every tool call, so the page can show what the agent is doing.
-export async function autocomplete({ type, url, onEvent = () => { } }) {
-    const browser = createBrowser()
-    try {
-        const toolsets = await browser.listToolsets()
-        for (const modelId of config.models) {
-            onEvent({ type: 'model', modelId })
-            try {
-                const result = await createAgent(type, modelId).generate(`Open ${url} and fill the form.`, {
-                    toolsets,
-                    maxSteps: config.maxSteps,
-                    modelSettings: { temperature: 0 },
-                    // a separate structuring model lets the agent use tools first and answer with the schema last
-                    structuredOutput: { schema: schemas[type], model: modelFor(modelId), errorStrategy: 'strict' },
-                    onStepFinish: ({ toolCalls = [] }) => {
-                        for (const call of toolCalls) onEvent({ type: 'tool', tool: call.payload?.toolName ?? call.toolName, args: call.payload?.args ?? call.args })
-                    },
-                })
-                return { modelId, fields: result.object }
-            } catch (error) {
-                onEvent({ type: 'retry', modelId, message: error.message })
+const toolName = name => String(name).replace(/^browser_/, '')
+
+// 8. Putting it together: run the agent with the strategy's tools and stream what happens.
+//    Fields arrive through update_form while the agent works; there's no final "answer" to parse.
+export async function autocomplete({ type, url, onEvent = () => { }, signal, mode = config.browseMode }) {
+    const strategy = strategies[mode]
+    const tools = await strategy.tools()
+    const prepareStep = stepPlan({ firstSteps: strategy.firstSteps, maxSteps: config.maxSteps })
+
+    const modelId = config.model
+    const fields = {}
+    const updateForm = createUpdateForm(type, found => {
+        Object.assign(fields, found)
+        onEvent({ type: 'fields', fields: found })
+    })
+    onEvent({ type: 'model', modelId })
+    await createAgent({ type, modelId, rules: strategy.rules, tools: { ...tools, update_form: updateForm } }).generate(`Fill the form for ${url}`, {
+        maxSteps: config.maxSteps,
+        abortSignal: signal,
+        prepareStep,
+        modelSettings: { temperature: 0 },
+        onStepFinish: ({ toolCalls = [] }) => {
+            for (const call of toolCalls) {
+                const name = call.payload?.toolName ?? call.toolName
+                if (name !== 'update_form') onEvent({ type: 'tool', tool: toolName(name), args: call.payload?.args ?? call.args })
             }
-        }
-        throw new Error('no model could fill the form')
-    } finally {
-        await browser.disconnect()
-    }
+        },
+    })
+    if (!Object.keys(fields).length) throw new Error('the agent found nothing on this page')
+    return { modelId, fields }
 }

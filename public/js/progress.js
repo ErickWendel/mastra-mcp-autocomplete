@@ -3,14 +3,15 @@ const seconds = ms => `${(ms / 1000).toFixed(1)}s`
 const describe = event => ({
     detected: `detected a ${event.contributionType}`,
     model: `thinking with ${event.modelId}`,
-    tool: `${String(event.tool).replace(/^browser_/, '')} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
-    retry: `${event.modelId} failed, trying the next model`,
+    tool: `${event.tool} ${event.args?.url ?? event.args?.element ?? event.args?.text ?? ''}`.trim(),
+    fields: `filled ${Object.keys(event.fields ?? {}).join(', ')}`,
 })[event.type]
 
 export function createProgress(element) {
     let started, timer, list, title
     return {
         start(url) {
+            clearInterval(timer)
             started = Date.now()
             element.hidden = false
             element.innerHTML = `<div class="title"></div><ol></ol>`

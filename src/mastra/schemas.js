@@ -1,13 +1,14 @@
 import { z } from 'zod'
 
-// 3. The output: one zod schema per type. Every field is optional, so the agent leaves unknown ones empty
-//    instead of inventing them. `.describe()` is what the model reads to know what each field means.
+// 2. The form: one zod schema per type. Every field is optional, so the agent leaves unknown ones out
+//     instead of inventing them. `.describe()` is what the model reads to know what each field means.
+//     The same schemas become the update_form tool's input and the page's form (as JSON Schema).
 const text = description => z.string().nullish().describe(description)
 const common = {
     title: text('title of the contribution'),
     summary: text('2-3 sentences in your own words, in the language of the content'),
     date: text('YYYY-MM-DD'),
-    language: z.enum(['pt-br', 'en-us', 'es']).nullish(),
+    language: z.enum(['pt-br', 'en-us', 'es']).nullish().describe('language of the content'),
     tags: z.array(z.string()).nullish().describe('3-6 short lowercase technology tags'),
 }
 
@@ -15,13 +16,14 @@ export const schemas = {
     talk: z.object({
         ...common,
         title: text('title of the talk/session given by the speaker, not the event name'),
-        eventName: text('name of the event'),
+        eventName: text('official name of the event (as in its title or logo), not its slogan or tagline'),
         city: text('city of the event'),
         country: text('country, in English'),
         attendees: z.number().nullish().describe('attendees/registrations if shown'),
     }),
     post: z.object({ ...common, site: text('site or portal name, e.g. LinkedIn, Medium, dev.to') }),
-    video: z.object({ ...common, channel: text('channel name'), views: z.number().nullish() }),
+    video: z.object({ ...common, channel: text('channel name'), views: z.number().nullish().describe('view count') }),
 }
 
 export const TYPES = Object.keys(schemas)
+export const formsAsJsonSchema = () => Object.fromEntries(TYPES.map(type => [type, z.toJSONSchema(schemas[type])]))

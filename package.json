@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node --env-file=.env src/server.js",
     "dev": "node --env-file=.env --watch src/server.js",
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.js\"",
+    "try": "node --env-file=.env scripts/try.js"
   },
   "engines": {
     "node": ">=22"

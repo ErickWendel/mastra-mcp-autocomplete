@@ -3,6 +3,7 @@ import fastifyStatic from '@fastify/static'
 import { fileURLToPath } from 'url'
 import { autocompleteRoute } from './routes/autocomplete.js'
 import { contributionsRoutes } from './routes/contributions.js'
+import { formsRoute } from './routes/forms.js'
 
 // The HTTP app, built from its dependencies (the tests pass fakes).
 export async function buildApp({ store, autocomplete }) {
@@ -10,5 +11,6 @@ export async function buildApp({ store, autocomplete }) {
     await app.register(fastifyStatic, { root: fileURLToPath(new URL('../public', import.meta.url)) })
     autocompleteRoute(app, { store, autocomplete })
     contributionsRoutes(app, { store })
+    formsRoute(app)
     return app
 }

@@ -1,25 +1,29 @@
 import { detectType } from '../lib/detect-type.js'
 import { openStream } from '../lib/sse.js'
+import { TYPES } from '../mastra/schemas.js'
 
-// POST /api/autocomplete { url } -> a stream of steps, ending with the saved contribution
+// POST /api/autocomplete { url, type? } -> a stream of steps; fields arrive as the agent finds them.
+// Nothing is saved here: the person reviews the form and saves it (POST /api/contributions).
 export function autocompleteRoute(app, { store, autocomplete }) {
     app.post('/api/autocomplete', async (request, reply) => {
-        const { url } = request.body ?? {}
+        const { url, type: chosen } = request.body ?? {}
         if (!/^https?:\/\//.test(url ?? '')) return reply.code(400).send({ error: 'paste an http(s) URL' })
+        const type = TYPES.includes(chosen) ? chosen : detectType(url)
 
         const stream = openStream(reply)
-        const type = detectType(url)
+        // closing the page (or pasting another URL) stops the agent
+        const controller = new AbortController()
+        reply.raw.on('close', () => controller.abort())
+        const started = Date.now()
         stream.send({ type: 'detected', contributionType: type })
         try {
             const existing = await store.findByUrl(url)
-            if (existing) return stream.send({ type: 'saved', item: existing, duplicate: true })
+            if (existing) return stream.send({ type: 'duplicate', item: existing })
 
-            const started = Date.now()
-            const { modelId, fields } = await autocomplete({ type, url, onEvent: stream.send })
-            const { item, duplicate } = await store.save({ url, type, modelId, tookMs: Date.now() - started, ...fields })
-            stream.send({ type: 'saved', item, duplicate })
+            const { modelId, fields } = await autocomplete({ type, url, onEvent: stream.send, signal: controller.signal })
+            stream.send({ type: 'done', modelId, fields, tookMs: Date.now() - started })
         } catch (error) {
-            stream.send({ type: 'error', message: error.message })
+            if (!controller.signal.aborted) stream.send({ type: 'error', message: error.message })
         } finally {
             stream.close()
         }
