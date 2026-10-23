@@ -9,5 +9,4 @@ export const config = {
     // each step is one model call: a budget keeps a stubborn model from browsing forever
     // (an event's home page -> agenda -> session -> venue takes a few pages)
     maxSteps: 25,
-    dataFile: new URL('../data/contributions.json', import.meta.url),
 }

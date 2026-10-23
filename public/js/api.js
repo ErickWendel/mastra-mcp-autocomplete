@@ -1,4 +1,4 @@
-// Talks to the server. The autocomplete answer is a stream (server-sent events over a POST),
+// Talks to the server (the agent and the form schemas; saved contributions stay in the browser). The autocomplete answer is a stream (server-sent events over a POST),
 // read chunk by chunk so every step shows up as soon as it happens.
 export async function autocomplete({ url, type, signal }, onEvent) {
     const response = await fetch('/api/autocomplete', { method: 'POST', signal, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url, type }) })
@@ -22,6 +22,3 @@ async function json(response) {
 }
 
 export const getForms = () => fetch('/api/forms').then(json)
-export const listContributions = () => fetch('/api/contributions').then(json)
-export const saveContribution = contribution => fetch('/api/contributions', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(contribution) }).then(json)
-export const removeContribution = id => fetch(`/api/contributions/${id}`, { method: 'DELETE' })

@@ -1,18 +1,20 @@
-import { autocomplete, getForms, listContributions, saveContribution, removeContribution } from './api.js'
+import { autocomplete, getForms } from './api.js'
+import { createStore } from './storage.js'
 import { createProgress } from './progress.js'
 import { createSchemaForm } from './schema-form.js'
 import { createTypePicker } from './type-picker.js'
 import { renderGrid } from './grid.js'
 
-// Wires the pieces together: URL ➜ agent stream ➜ form (filled live) ➜ save ➜ grid.
+// Wires the pieces together: URL ➜ agent stream ➜ form (filled live) ➜ save (localStorage) ➜ grid.
 const $ = id => document.getElementById(id)
 const forms = await getForms()
+const store = createStore()
 const progress = createProgress($('progress'))
 const form = createSchemaForm($('fields'))
 const picker = createTypePicker($('types'), Object.keys(forms), type => { form.render(forms[type]); run(type) })
 let current = null // { url, type, modelId, tookMs, controller }
 
-const refresh = async freshId => renderGrid($('grid'), $('count'), await listContributions(), freshId)
+const refresh = freshId => renderGrid($('grid'), $('count'), store.list(), freshId)
 
 function onStep(step) {
     progress.add(step)
@@ -25,10 +27,6 @@ function onStep(step) {
         Object.assign(current, { modelId: step.modelId, tookMs: step.tookMs })
         progress.finish(`filled by ${step.modelId}: review and save`)
     }
-    if (step.type === 'duplicate') {
-        progress.finish('already saved: it is highlighted below', true)
-        refresh(step.item.id)
-    }
     if (step.type === 'error') progress.finish(step.message, true)
 }
 
@@ -37,6 +35,14 @@ async function run(type) {
     const url = $('url').value.trim()
     if (!/^https?:\/\//.test(url)) return
     current?.controller.abort()
+    // already saved: no need to ask the agent again
+    const existing = store.findByUrl(url)
+    if (existing) {
+        current = null
+        progress.start(url)
+        progress.finish('already saved: it is highlighted below', true)
+        return refresh(existing.id)
+    }
     const controller = new AbortController()
     current = { url, type, controller }
     $('save').disabled = false
@@ -61,23 +67,19 @@ function reset() {
 }
 $('clear').addEventListener('click', reset)
 
-$('contribution').addEventListener('submit', async event => {
+$('contribution').addEventListener('submit', event => {
     event.preventDefault()
     if (!current) return
-    try {
-        const { url, modelId, tookMs } = current
-        const item = await saveContribution({ url, type: picker.get(), modelId, tookMs, fields: form.values() })
-        reset()
-        refresh(item.id)
-    } catch (error) {
-        progress.finish(`not saved: ${error.message}`, true)
-    }
+    const { url, modelId, tookMs } = current
+    const { item } = store.save({ url, type: picker.get(), modelId, tookMs, ...form.values() })
+    reset()
+    refresh(item.id)
 })
 
-$('grid').addEventListener('click', async event => {
+$('grid').addEventListener('click', event => {
     const id = event.target.dataset.remove
     if (!id) return
-    await removeContribution(id)
+    store.remove(id)
     refresh()
 })
 

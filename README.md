@@ -4,12 +4,12 @@ Paste a post, YouTube or event URL (even an event's home page). A [Mastra](https
 person through the [Playwright MCP server](https://github.com/microsoft/playwright-mcp): it opens the page, *searches* it
 for what it needs (`browser_find`), zooms into one section (`browser_snapshot` with a target), and clicks through to the
 agenda, the talk or the venue. Every field it finds is pushed to the form right away (the `update_form` tool); you review
-it and save it to a local grid.
+it and save it to a grid kept in your browser (localStorage).
 
 ```
 URL ─▶ detect type ─▶ Mastra Agent ──▶ Playwright MCP: navigate · find · snapshot(target) · click
                            │
-                           └─▶ update_form (as it goes) ─▶ SSE ─▶ form fills live ─▶ Save ─▶ data/contributions.json
+                           └─▶ update_form (as it goes) ─▶ SSE ─▶ form fills live ─▶ Save ─▶ localStorage
 ```
 
 ## Run it
@@ -51,13 +51,12 @@ Things worth showing:
 
 | Path | Responsibility |
 |------|----------------|
-| `src/config.js` | Model, step budget, speaker name, data file. |
+| `src/config.js` | Model, step budget, speaker name. |
 | `src/lib/detect-type.js` | URL ➜ `video` / `post` / `talk`. |
 | `src/lib/sse.js` | Server-sent events so the page sees each step live. |
-| `src/storage/contributions-store.js` | JSON file storage; the same URL is never saved twice. |
-| `src/routes/` | `POST /api/autocomplete` (stream of steps and fields), `GET/POST/DELETE /api/contributions`, `GET /api/forms`. |
+| `src/routes/` | `POST /api/autocomplete` (stream of steps and fields) and `GET /api/forms`. The server saves nothing. |
 | `src/app.js` / `src/server.js` | Fastify app built from injectable dependencies, and its entry point. |
-| `public/` | No-build front end: `api.js` (reads the stream), `schema-form.js` (form from JSON Schema, filled live), `type-picker.js`, `progress.js`, `grid.js`, `app.js`. |
+| `public/` | No-build front end: `api.js` (reads the stream), `schema-form.js` (form from JSON Schema, filled live), `storage.js` (saved grid in localStorage, no duplicate URLs), `type-picker.js`, `progress.js`, `grid.js`, `app.js`. |
 | `scripts/try.js` | Runs the agent from the terminal. |
 
 ## Configuration
